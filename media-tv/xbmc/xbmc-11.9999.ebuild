@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/xbmc-9999.ebuild,v 1.108 2012/03/29 16:22:51 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/xbmc-11.0.ebuild,v 1.12 2012/06/08 04:49:52 vapier Exp $
 
 EAPI="4"
 
@@ -10,23 +10,16 @@ PYTHON_DEPEND="2:2.6"
 
 inherit eutils python
 
-EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
-if [[ ${PV} == "9999" ]] ; then
-	inherit git-2 autotools
-else
-	inherit autotools
-	MY_P=${P/_/-*_}
-	SRC_URI="http://mirrors.xbmc.org/releases/source/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-	S=${WORKDIR}/${MY_P}
-fi
+EGIT_REPO_URI="git://github.com/v00d00/xbmc.git"
+EGIT_BRANCH="Eden-cec"
+inherit git-2 autotools
 
 DESCRIPTION="XBMC is a free and open source media-player and entertainment hub"
 HOMEPAGE="http://xbmc.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="airplay alsa altivec avahi bluetooth bluray css debug goom joystick midi mysql profile +projectm pulseaudio pvr +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
+IUSE="airplay alsa altivec avahi bluetooth bluray cec css debug goom joystick midi mysql profile +projectm pulseaudio pvr +rsxs rtmp +samba sse sse2 udev vaapi vdpau webserver +xrandr"
 REQUIRED_USE="pvr? ( mysql )"
 
 COMMON_DEPEND="virtual/opengl
@@ -39,6 +32,7 @@ COMMON_DEPEND="virtual/opengl
 	dev-libs/boost
 	dev-libs/fribidi
 	dev-libs/libcdio[-minimal]
+	cec? ( dev-libs/libcec )
 	dev-libs/libpcre[cxx]
 	>=dev-libs/lzo-2.04
 	dev-libs/yajl
@@ -72,6 +66,7 @@ COMMON_DEPEND="virtual/opengl
 	media-libs/tiff
 	pulseaudio? ( media-sound/pulseaudio )
 	media-sound/wavpack
+	|| ( media-libs/libpostproc <media-video/libav-0.8.2-r1 media-video/ffmpeg )
 	>=virtual/ffmpeg-0.6[encode]
 	rtmp? ( media-video/rtmpdump )
 	avahi? ( net-dns/avahi )
@@ -84,7 +79,7 @@ COMMON_DEPEND="virtual/opengl
 	mysql? ( virtual/mysql )
 	x11-apps/xdpyinfo
 	x11-apps/mesa-progs
-	vaapi? ( x11-libs/libva )
+	vaapi? ( x11-libs/libva[opengl] )
 	vdpau? (
 		|| ( x11-libs/libvdpau >=x11-drivers/nvidia-drivers-180.51 )
 		virtual/ffmpeg[vdpau]
@@ -106,14 +101,9 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if [[ ${PV} == "9999" ]] ; then
-		git-2_src_unpack
-		cd "${S}"
-		rm -f configure
-	else
-		unpack ${A}
-		cd "${S}"
-	fi
+	git-2_src_unpack
+	cd "${S}"
+	rm -f configure
 
 	# Fix case sensitivity
 	mv media/Fonts/{a,A}rial.ttf || die
@@ -122,7 +112,9 @@ src_unpack() {
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-9999-nomythtv.patch
-	epatch "${FILESDIR}"/${PN}-9999-no-arm-flags.patch #400617
+	epatch "${FILESDIR}"/${PN}-9999-no-arm-flags.patch
+	epatch "${FILESDIR}"/${PN}-11.0-no-exec-stack.patch
+	epatch "${FILESDIR}"/${PN}-11.0-ffmpeg-0.10.2.patch #406215
 	# The mythtv patch touches configure.ac, so force a regen
 	rm -f configure
 
@@ -140,10 +132,6 @@ src_prepare() {
 		popd >/dev/null
 	done
 
-	# Disable internal func checks as our USE/DEPEND
-	# stuff handles this just fine already #408395
-	export ac_cv_lib_avcodec_ff_vdpau_vc1_decode_picture=yes
-
 	local squish #290564
 	use altivec && squish="-DSQUISH_USE_ALTIVEC=1 -maltivec"
 	use sse && squish="-DSQUISH_USE_SSE=1 -msse"
@@ -152,6 +140,10 @@ src_prepare() {
 		-e '/^CXXFLAGS/{s:-D[^=]*=.::;s:-m[[:alnum:]]*::}' \
 		-e "1iCXXFLAGS += ${squish}" \
 		lib/libsquish/Makefile.in || die
+
+	# Disable internal func checks as our USE/DEPEND
+	# stuff handles this just fine already #408395
+	export ac_cv_lib_avcodec_ff_vdpau_vc1_decode_picture=yes
 
 	# Fix XBMC's final version string showing as "exported"
 	# instead of the SVN revision number.
@@ -190,6 +182,7 @@ src_configure() {
 		$(use_enable airplay) \
 		$(use_enable avahi) \
 		$(use_enable bluray libbluray) \
+		$(use_enable cec libcec) \
 		$(use_enable css dvdcss) \
 		$(use_enable debug) \
 		$(use_enable goom) \
@@ -216,7 +209,7 @@ src_install() {
 
 	insinto /usr/share/applications
 	doins tools/Linux/xbmc.desktop
-	doicon tools/Linux/xbmc.png
+	newicon tools/Linux/xbmc-48x48.png xbmc.png
 
 	insinto "$(python_get_sitedir)" #309885
 	doins tools/EventClients/lib/python/xbmcclient.py || die

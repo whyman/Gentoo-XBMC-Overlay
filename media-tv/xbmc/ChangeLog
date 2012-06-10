@@ -1,6 +1,47 @@
 # ChangeLog for media-tv/xbmc
 # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/ChangeLog,v 1.128 2012/03/31 12:06:00 scarabeus Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-tv/xbmc/ChangeLog,v 1.140 2012/06/08 04:49:52 vapier Exp $
+
+  08 Jun 2012; Mike Frysinger <vapier@gentoo.org> xbmc-11.0.ebuild,
+  xbmc-9999.ebuild:
+  Update path to xbmc icon #419989 by candrews.
+
+  22 May 2012; Jeff Horelick <jdhore@gentoo.org> xbmc-11.0.ebuild:
+  marked x86 per bug 415907
+
+  22 May 2012; Diego E. Pettenò <flameeyes@gentoo.org> xbmc-11.0.ebuild,
+  xbmc-9999.ebuild:
+  Allow using older libav as well, for postproc.
+
+  22 May 2012; Diego E. Pettenò <flameeyes@gentoo.org> xbmc-11.0.ebuild,
+  xbmc-9999.ebuild:
+  Add an explicit dependency over libpostproc.
+
+  14 May 2012; Agostino Sarubbo <ago@gentoo.org> xbmc-11.0.ebuild:
+  Stable for amd64, wrt bug #415907
+
+  14 May 2012; Tomáš Chvátal <scarabeus@gentoo.org> xbmc-9999.ebuild:
+  Add dep over tinyxml. Fixes bug#415681.
+
+  29 Apr 2012; Mike Frysinger <vapier@gentoo.org>
+  +files/xbmc-11.0-no-arm-flags.patch, xbmc-11.0.ebuild:
+  Add dedciated arm flags patch for 11.0 #413715 by Lech Perczak.
+
+  26 Apr 2012; Mike Frysinger <vapier@gentoo.org>
+  files/xbmc-9999-no-arm-flags.patch:
+  Update arm patch to latest git #413435 by candrews.
+
+  11 Apr 2012; Mike Frysinger <vapier@gentoo.org> xbmc-9999.ebuild:
+  Drop lsb_release hack now that upsream is good #411219 by BT.
+
+  05 Apr 2012; Mike Frysinger <vapier@gentoo.org> xbmc-11.0.ebuild,
+  xbmc-9999.ebuild, metadata.xml:
+  Add USE=cec support #410479 by Ian Whyman.
+
+  31 Mar 2012; Tomáš Chvátal <scarabeus@gentoo.org> xbmc-11.0.ebuild,
+  xbmc-9999.ebuild:
+  Require the opengl useflag on libva, fails configure without it. Reported by
+  Ian (Thev00d00) retested by me. Non-maintainer commit, trivial change.
 
   31 Mar 2012; Tomáš Chvátal <scarabeus@gentoo.org>
   +files/xbmc-11.0-ffmpeg-0.10.2.patch, xbmc-11.0.ebuild, xbmc-9999.ebuild:
