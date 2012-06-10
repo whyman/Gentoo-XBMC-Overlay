@@ -35,6 +35,7 @@ COMMON_DEPEND="virtual/opengl
 	cec? ( dev-libs/libcec )
 	dev-libs/libpcre[cxx]
 	>=dev-libs/lzo-2.04
+	dev-libs/tinyxml
 	dev-libs/yajl
 	>=dev-python/pysqlite-2
 	dev-python/simplejson
